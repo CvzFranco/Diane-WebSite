@@ -1,21 +1,119 @@
-import React, { useState } from "react";
-import FirstYear from "./FirstYear";
+import React, { useState, useEffect } from "react";
+import Page1 from "./Page1";
+import Page2 from "./Page2";
 import Home from "./Home";
 import styled from "styled-components";
 import Menu from "../components/Menu";
+import Page3 from "./page3";
+import Page4 from "./Page4";
 
 function MainPage() {
   const [menuToggled, setMenuToggled] = useState(false);
+  useEffect(() => {
+    init();
+
+    var g_containerInViewport;
+    function init() {
+      setStickyContainersSize();
+      bindEvents();
+    }
+
+    function bindEvents() {
+      window.addEventListener("wheel", wheelHandler);
+    }
+
+    function setStickyContainersSize() {
+      document
+        .querySelectorAll(".sticky-container")
+        .forEach(function (container) {
+          const stikyContainerHeight =
+            container.querySelector("main").offsetWidth * 4 +
+            window.innerHeight;
+          container.setAttribute(
+            "style",
+            "height: " + stikyContainerHeight + "px"
+          );
+        });
+    }
+
+    function isElementInViewport(el) {
+      const rect = el.getBoundingClientRect();
+      return (
+        rect.top <= 0 && rect.bottom > document.documentElement.clientHeight
+      );
+    }
+
+    function wheelHandler(evt) {
+      const containerInViewPort = Array.from(
+        document.querySelectorAll(".sticky-container")
+      ).filter(function (container) {
+        return isElementInViewport(container);
+      })[0];
+
+      if (!containerInViewPort) {
+        return;
+      }
+
+      var isPlaceHolderBelowTop =
+        containerInViewPort.offsetTop < document.documentElement.scrollTop;
+      var isPlaceHolderBelowBottom =
+        containerInViewPort.offsetTop + containerInViewPort.offsetHeight >
+        document.documentElement.scrollTop;
+      let g_canScrollHorizontally =
+        isPlaceHolderBelowTop && isPlaceHolderBelowBottom;
+
+      if (g_canScrollHorizontally) {
+        containerInViewPort.querySelector("main").scrollLeft += evt.deltaY;
+      }
+    }
+  }, []);
   return (
     <MainPageStyled>
-      <Home />
-      <FirstYear />
+      <div class="vertical-section">
+        <Home />
+      </div>
+      <div class="sticky-container">
+        <main>
+          <section>
+            <Page3 />
+          </section>
+          <section>
+            <Page4 />
+          </section>
+
+          <section>
+            <h1>Boooom</h1>
+          </section>
+          <section>
+            <h1>The End</h1>
+          </section>
+        </main>
+      </div>
+      <div class="vertical-section">Content Below</div>
+      <div class="sticky-container">
+        <main>
+          <section>
+            <h1>Beep</h1>
+          </section>
+          <section>
+            <h1>Boop</h1>
+          </section>
+          <section>
+            <h1>Boooom</h1>
+          </section>
+          <section>
+            <h1>The End</h1>
+          </section>
+        </main>
+      </div>
       <div className="menu-container">
         <MenuStyled>
           <div className="menu__container">
             <div className="menu__hidden">
               <MenuDeploy menuToggled={menuToggled}>
-                <Menu />
+                <div className="opacity">
+                  <Menu />
+                </div>
               </MenuDeploy>
             </div>
             <MenuFigure menuToggled={menuToggled}>
@@ -46,7 +144,35 @@ function MainPage() {
 }
 
 const MainPageStyled = styled.section`
+  .vertical-section {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  main {
+    overflow-x: hidden;
+    display: flex;
+    position: sticky;
+    top: 0;
+  }
+
+  h1 {
+    margin: 0;
+    padding: 0;
+  }
+
+  section {
+    min-width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 4ch;
+  }
   position: relative;
+
   .menu-container {
     position: absolute;
     top: 0;
@@ -102,15 +228,17 @@ const MenuStyled = styled.div`
 
 const MenuDeploy = styled.div`
   height: 100vh;
-  overflow: hidden;
+  overflow-x: hidden;
   width: ${({ menuToggled }) => (menuToggled ? "1920px" : "0")};
+
   transition: all 1.5s ease-in;
   background-color: white;
   overflow: hidden;
-
-  .coucou {
-    font-size: 5rem;
-    text-align: center;
+  .opacity {
+    background: white;
+    opacity: ${({ menuToggled }) => (menuToggled ? "1" : "0")};
+    transition: all 1.1s ease-in;
+    transition-delay: ${({ menuToggled }) => (menuToggled ? "1.5s" : "0")};
   }
 `;
 const MenuFigure = styled.div`

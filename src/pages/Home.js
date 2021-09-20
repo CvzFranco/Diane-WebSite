@@ -30,8 +30,9 @@ const HomeStyled = styled.section`
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  width: 100%;
+  width: 1920px;
   height: 100vh; /* responsive height */
+  overflow-x: hidden;
   position: relative;
   .text__left {
     position: absolute;
